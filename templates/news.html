@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}News — PredictX{% endblock %}{% block content %}<div class="appgrid"><aside class="sidebar">{% include "sidebar.html" %}</aside><section class="workspace"><div class="pagehead"><div><div class="eyebrow">MARKET NEWS</div><h1>Stock news</h1><p>Recent headlines returned by Yahoo Finance for the selected symbol.</p></div></div><div class="control card"><div class="field"><label>STOCK</label><input
+    id="newsTicker"
+    class="stock-autocomplete"
+    value="AAPL"
+    placeholder="Search stock..."
+    autocomplete="off"
+></div><button class="primary" onclick="loadNews()">Load news →</button></div><div id="newsMessage" class="message"></div><div id="newsGrid" class="newsgrid"></div></section></div><script src="{{url_for('static',filename='js/news.js')}}"></script>{% endblock %}

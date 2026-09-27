@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — PredictX{% endblock %}
+
+{% block content %}
+
+<div class="appgrid">
+
+    <aside class="sidebar">
+        {% include "sidebar.html" %}
+    </aside>
+
+    <section class="workspace">
+
+        <div class="pagehead">
+
+            <div>
+
+                <div class="eyebrow">
+                    ACCOUNT
+                </div>
+
+                <h1>
+                    My profile
+                </h1>
+
+                <p>
+                    Manage your account information.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="card profile-card">
+
+            <div class="profile-header">
+
+                <div class="avatar">
+                    {{ current_user.name[:1].upper() }}
+                </div>
+
+                <div>
+
+                    <h2>
+                        {{ current_user.name }}
+                    </h2>
+
+                    <p>
+                        {{ current_user.email }}
+                    </p>
+
+                    <small>
+                        Member since
+                        {{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'Recently' }}
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <hr>
+
+
+            <form method="POST">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+
+                <div class="field">
+
+                    <label for="name">
+                        FULL NAME
+                    </label>
+
+                    <input
+                        id="name"
+                        type="text"
+                        name="name"
+                        value="{{ current_user.name }}"
+                        required
+                        minlength="2"
+                        maxlength="80"
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="email">
+                        EMAIL
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        value="{{ current_user.email }}"
+                        readonly
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary"
+                >
+                    Update Profile
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

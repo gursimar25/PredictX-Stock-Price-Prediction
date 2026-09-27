@@ -1,0 +1,13 @@
+<div class="sidetitle">WORKSPACE</div>
+<a class="{{'sideactive' if request.endpoint=='dashboard'}}" href="{{url_for('dashboard')}}">▦ Overview</a>
+<a class="{{'sideactive' if request.endpoint=='predict_page'}}" href="{{url_for('predict_page')}}">⌁ Predict stock</a>
+<a class="{{'sideactive' if request.endpoint=='analytics_page'}}" href="{{url_for('analytics_page')}}">◒ Analytics</a>
+<a class="{{'sideactive' if request.endpoint=='watchlist_page'}}" href="{{url_for('watchlist_page')}}">☆ Watchlist</a>
+<a class="{{'sideactive' if request.endpoint=='portfolio_page'}}" href="{{url_for('portfolio_page')}}">▣ Portfolio</a>
+<a class="{{'sideactive' if request.endpoint=='alerts_page'}}" href="{{url_for('alerts_page')}}">⚑ Alerts</a>
+<a class="{{'sideactive' if request.endpoint=='news_page'}}" href="{{url_for('news_page')}}">▤ News</a>
+<a class="{{'sideactive' if request.endpoint=='history'}}" href="{{url_for('history')}}">◷ History</a>
+<a class="{{'sideactive' if request.endpoint=='profile'}}" href="{{url_for('profile')}}">◉ Profile</a>
+<a class="{{'sideactive' if request.endpoint=='about'}}" href="{{url_for('about')}}">ⓘ About</a>
+<a class="logout" href="{{url_for('logout')}}">↪ Sign out</a>
+<div class="userbox"><div class="avatar">{{current_user.name[0]|upper}}</div><div><b>{{current_user.name}}</b><small>{{current_user.email}}</small></div></div>

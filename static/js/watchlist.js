@@ -1,0 +1,3 @@
+async function addWatch(){const ticker=document.getElementById('watchTicker').value.trim();if(!ticker)return;const r=await fetch('/api/watchlist',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':document.querySelector('meta[name="csrf-token"]')?.content||''},body:JSON.stringify({ticker})});const d=await r.json();if(d.success)location.reload();else alert(d.error);}
+async function removeWatch(ticker){await fetch('/api/watchlist',{method:'DELETE',headers:{'Content-Type':'application/json','X-CSRFToken':document.querySelector('meta[name="csrf-token"]')?.content||''},body:JSON.stringify({ticker})});location.reload();}
+function analyzeWatch(ticker){location.href='/predict?'+new URLSearchParams({ticker}).toString();}

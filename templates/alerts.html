@@ -1,0 +1,798 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts — PredictX{% endblock %}
+
+{% block content %}
+
+<div class="appgrid">
+
+    <aside class="sidebar">
+        {% include "sidebar.html" %}
+    </aside>
+
+    <section class="workspace">
+
+        <!-- PAGE HEADER -->
+        <div class="pagehead">
+
+            <div>
+
+                <div class="eyebrow">
+                    MARKET MONITORING
+                </div>
+
+                <h1>
+                    Price alerts
+                </h1>
+
+                <p>
+                    Create alerts for when a stock reaches
+                    your target price.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- CREATE ALERT -->
+        <div class="card">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Create price alert
+                    </h2>
+
+                    <p>
+                        We'll check the latest Yahoo Finance
+                        price when you request an alert check.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form id="alertForm">
+
+                <div class="field">
+
+                    <label for="aTicker">
+                        STOCK SYMBOL
+                    </label>
+
+                    <div class="stock-search">
+
+                        <input
+                            id="aTicker"
+                            name="ticker"
+                            class="stock-autocomplete"
+                            value="AAPL"
+                            placeholder="Search stock..."
+                            autocomplete="off"
+                            maxlength="20"
+                            required
+                        >
+
+                        <div
+                            class="stock-suggestions"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="aTarget">
+                        TARGET PRICE
+                    </label>
+
+                    <input
+                        id="aTarget"
+                        name="target_price"
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="Example: 250.00"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="aDirection">
+                        CONDITION
+                    </label>
+
+                    <select
+                        id="aDirection"
+                        name="direction"
+                    >
+
+                        <option value="above">
+                            Alert when price goes above target
+                        </option>
+
+                        <option value="below">
+                            Alert when price goes below target
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary"
+                >
+                    Create Alert →
+                </button>
+
+            </form>
+
+
+            <div
+                id="alertMessage"
+                class="message"
+            ></div>
+
+        </div>
+
+
+        <!-- CHECK ALERTS -->
+        <div class="card">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Check active alerts
+                    </h2>
+
+                    <p>
+                        Fetch the latest market price and
+                        check whether your targets have been reached.
+                    </p>
+
+                </div>
+
+                <button
+                    id="checkAlerts"
+                    class="secondary"
+                    type="button"
+                >
+                    Check Now
+                </button>
+
+            </div>
+
+
+            <div
+                id="triggeredAlerts"
+                class="alert-results"
+            ></div>
+
+        </div>
+
+
+        <!-- EXISTING ALERTS -->
+        <div class="card">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Your alerts
+                    </h2>
+
+                    <p>
+                        Manage the price alerts you've created.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if alerts %}
+
+                <div class="tablewrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    STOCK
+                                </th>
+
+                                <th>
+                                    TARGET
+                                </th>
+
+                                <th>
+                                    CONDITION
+                                </th>
+
+                                <th>
+                                    STATUS
+                                </th>
+
+                                <th>
+                                    CREATED
+                                </th>
+
+                                <th>
+                                    ACTION
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for alert in alerts %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ alert.ticker }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+
+                                    {{ "%.2f"|format(
+                                        alert.target_price
+                                    ) }}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if alert.direction == "above" %}
+
+                                        Above
+
+                                    {% else %}
+
+                                        Below
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if alert.active %}
+
+                                        <span class="status active">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status">
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if alert.created_at %}
+
+                                        {{
+                                            alert.created_at.strftime(
+                                                "%d %b %Y"
+                                            )
+                                        }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="secondary delete-alert"
+                                        data-id="{{ alert.id }}"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+
+                    <h3>
+                        No alerts yet
+                    </h3>
+
+                    <p>
+                        Create your first stock price alert above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- PAGE SCRIPT -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.getElementById(
+                "alertForm"
+            );
+
+        const message =
+            document.getElementById(
+                "alertMessage"
+            );
+
+        const checkButton =
+            document.getElementById(
+                "checkAlerts"
+            );
+
+        const triggered =
+            document.getElementById(
+                "triggeredAlerts"
+            );
+
+
+        /* =====================================================
+           CREATE ALERT
+        ===================================================== */
+
+        if (form) {
+
+            form.addEventListener(
+                "submit",
+                async function (event) {
+
+                    event.preventDefault();
+
+                    const ticker =
+                        document
+                        .getElementById(
+                            "aTicker"
+                        )
+                        .value
+                        .trim()
+                        .toUpperCase();
+
+                    const target =
+                        document
+                        .getElementById(
+                            "aTarget"
+                        )
+                        .value;
+
+                    const direction =
+                        document
+                        .getElementById(
+                            "aDirection"
+                        )
+                        .value;
+
+
+                    if (!ticker) {
+
+                        message.textContent =
+                            "Please enter a stock symbol.";
+
+                        return;
+                    }
+
+
+                    if (
+                        !target ||
+                        Number(target) <= 0
+                    ) {
+
+                        message.textContent =
+                            "Please enter a valid target price.";
+
+                        return;
+                    }
+
+
+                    message.textContent =
+                        "Creating alert...";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/api/alerts",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            ticker:
+                                                ticker,
+
+                                            target_price:
+                                                Number(
+                                                    target
+                                                ),
+
+                                            direction:
+                                                direction
+                                        })
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (
+                            !response.ok ||
+                            !data.success
+                        ) {
+
+                            throw new Error(
+                                data.error ||
+                                "Unable to create alert."
+                            );
+
+                        }
+
+
+                        message.textContent =
+                            `Alert created for ${ticker}.`;
+
+
+                        form.reset();
+
+
+                        document
+                            .getElementById(
+                                "aTicker"
+                            )
+                            .value = ticker;
+
+
+                        setTimeout(
+                            function () {
+
+                                location.reload();
+
+                            },
+                            700
+                        );
+
+                    }
+                    catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+                        message.textContent =
+                            error.message;
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           CHECK ACTIVE ALERTS
+        ===================================================== */
+
+        if (checkButton) {
+
+            checkButton.addEventListener(
+                "click",
+                async function () {
+
+                    checkButton.disabled =
+                        true;
+
+                    checkButton.textContent =
+                        "Checking...";
+
+
+                    triggered.innerHTML =
+                        "<p>Fetching latest prices...</p>";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/api/alerts/check"
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (
+                            !response.ok ||
+                            !data.success
+                        ) {
+
+                            throw new Error(
+                                data.error ||
+                                "Unable to check alerts."
+                            );
+
+                        }
+
+
+                        if (
+                            !data.triggered ||
+                            data.triggered.length === 0
+                        ) {
+
+                            triggered.innerHTML = `
+                                <div class="empty">
+                                    <h3>No alerts triggered</h3>
+                                    <p>
+                                        None of your active targets
+                                        have been reached.
+                                    </p>
+                                </div>
+                            `;
+
+                            return;
+                        }
+
+
+                        triggered.innerHTML = "";
+
+
+                        data.triggered.forEach(
+                            function (alert) {
+
+                                const item =
+                                    document.createElement(
+                                        "div"
+                                    );
+
+
+                                item.className =
+                                    "alert-triggered";
+
+
+                                item.innerHTML = `
+
+                                    <div>
+
+                                        <strong>
+                                            ${alert.ticker}
+                                        </strong>
+
+                                        <span>
+                                            Current price:
+                                            ${Number(
+                                                alert.price
+                                            ).toFixed(2)}
+                                        </span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            Target:
+                                            ${Number(
+                                                alert.target
+                                            ).toFixed(2)}
+                                        </strong>
+
+                                        <span>
+                                            ${
+                                                alert.direction ===
+                                                "above"
+                                                    ? "Above target"
+                                                    : "Below target"
+                                            }
+                                        </span>
+
+                                    </div>
+
+                                `;
+
+
+                                triggered.appendChild(
+                                    item
+                                );
+
+                            }
+                        );
+
+                    }
+                    catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+                        triggered.innerHTML = `
+                            <div class="message">
+                                ${error.message}
+                            </div>
+                        `;
+
+                    }
+                    finally {
+
+                        checkButton.disabled =
+                            false;
+
+                        checkButton.textContent =
+                            "Check Now";
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           DELETE ALERT
+        ===================================================== */
+
+        document
+            .querySelectorAll(
+                ".delete-alert"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        async function () {
+
+                            const id =
+                                this.dataset.id;
+
+
+                            if (
+                                !confirm(
+                                    "Delete this alert?"
+                                )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        "/api/alerts",
+                                        {
+                                            method:
+                                                "DELETE",
+
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json"
+                                            },
+
+                                            body:
+                                                JSON.stringify({
+                                                    id:
+                                                        Number(
+                                                            id
+                                                        )
+                                                })
+                                        }
+                                    );
+
+
+                                const data =
+                                    await response.json();
+
+
+                                if (
+                                    !response.ok ||
+                                    !data.success
+                                ) {
+
+                                    throw new Error(
+                                        data.error ||
+                                        "Unable to delete alert."
+                                    );
+
+                                }
+
+
+                                location.reload();
+
+                            }
+                            catch (error) {
+
+                                alert(
+                                    error.message
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+);
+
+</script>
+
+{% endblock %}

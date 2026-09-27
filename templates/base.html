@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}PredictX{% endblock %}</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<link rel="stylesheet" href="{{url_for('static',filename='css/style.css')}}">
+</head><body>
+<nav class="nav"><a class="brand" href="{{url_for('index')}}"><span class="logo">P</span> Predict<span>X</span></a>
+<div class="navlinks">{% if current_user.is_authenticated %}<a href="{{url_for('dashboard')}}">Dashboard</a><a href="{{url_for('predict_page')}}">Predict</a><a href="{{url_for('history')}}">History</a><a href="{{url_for('profile')}}">Profile</a><button class="theme-toggle" onclick="toggleTheme()">◐</button><a class="navbutton" href="{{url_for('logout')}}">Sign out</a>{% else %}<a href="{{url_for('about')}}">About</a><a href="{{url_for('login')}}">Sign in</a><a class="navbutton" href="{{url_for('register')}}">Get started</a>{% endif %}</div></nav>
+{% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flashbox">{% for cat,msg in messages %}<div class="flash {{cat}}">{{msg}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+{% block content %}{% endblock %}<footer>PredictX · Stock Price Prediction using Machine Learning · Educational use only</footer>
+<script>function toggleTheme(){document.body.classList.toggle('light');localStorage.setItem('predictx-theme',document.body.classList.contains('light')?'light':'dark')}if(localStorage.getItem('predictx-theme')==='light')document.body.classList.add('light');</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const inputs = document.querySelectorAll(
+        ".stock-autocomplete"
+    );
+
+    inputs.forEach(function (input) {
+
+        const wrapper = input.parentElement;
+
+        wrapper.classList.add("stock-search");
+
+        let box = wrapper.querySelector(
+            ".stock-suggestions"
+        );
+
+        if (!box) {
+
+            box = document.createElement("div");
+
+            box.className =
+                "stock-suggestions";
+
+            wrapper.appendChild(box);
+        }
+
+        let timeout;
+
+        input.addEventListener(
+            "input",
+            function () {
+
+                const query =
+                    this.value.trim();
+
+                clearTimeout(timeout);
+
+                if (!query) {
+
+                    box.innerHTML = "";
+                    box.style.display = "none";
+
+                    return;
+                }
+
+                timeout = setTimeout(
+                    async function () {
+
+                        try {
+
+                            const response =
+                                await fetch(
+                                    "/api/search?q=" +
+                                    encodeURIComponent(
+                                        query
+                                    )
+                                );
+
+                            if (!response.ok) {
+                                box.style.display =
+                                    "none";
+                                return;
+                            }
+
+                            const stocks =
+                                await response.json();
+
+                            box.innerHTML = "";
+
+                            if (
+                                !Array.isArray(stocks) ||
+                                stocks.length === 0
+                            ) {
+
+                                box.style.display =
+                                    "none";
+
+                                return;
+                            }
+
+                            stocks.forEach(
+                                function (stock) {
+
+                                    const item =
+                                        document.createElement(
+                                            "div"
+                                        );
+
+                                    item.className =
+                                        "stock-suggestion";
+
+                                    item.innerHTML = `
+                                        <div class="stock-symbol">
+                                            ${stock.symbol}
+                                        </div>
+
+                                        <div class="stock-name">
+                                            ${stock.name}
+                                        </div>
+                                    `;
+
+                                    item.addEventListener(
+                                        "click",
+                                        function () {
+
+                                            input.value =
+                                                stock.symbol;
+
+                                            box.innerHTML =
+                                                "";
+
+                                            box.style.display =
+                                                "none";
+
+                                            input.dispatchEvent(
+                                                new Event(
+                                                    "change",
+                                                    {
+                                                        bubbles: true
+                                                    }
+                                                )
+                                            );
+                                        }
+                                    );
+
+                                    box.appendChild(
+                                        item
+                                    );
+
+                                }
+                            );
+
+                            box.style.display =
+                                "block";
+
+                        }
+                        catch (error) {
+
+                            console.error(
+                                "Stock search:",
+                                error
+                            );
+
+                            box.style.display =
+                                "none";
+                        }
+
+                    },
+                    300
+                );
+            }
+        );
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    !wrapper.contains(
+                        event.target
+                    )
+                ) {
+
+                    box.style.display =
+                        "none";
+                }
+            }
+        );
+
+    });
+
+});
+</script></body></html>

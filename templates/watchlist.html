@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}Watchlist — PredictX{% endblock %}{% block content %}<div class="appgrid"><aside class="sidebar">{% include "sidebar.html" %}</aside><section class="workspace"><div class="pagehead"><div><div class="eyebrow">TRACKING</div><h1>My watchlist</h1><p>Keep symbols you want to revisit quickly.</p></div></div><div class="control card"><div class="field"><label>ADD SYMBOL</label><input
+    id="watchTicker"
+    class="stock-autocomplete"
+    placeholder="Search stock..."
+    autocomplete="off"
+></div><button class="primary" onclick="addWatch()">Add to watchlist →</button></div><div class="card tablecard"><div id="watchRows" class="watchgrid">{% for x in items %}<div class="watchitem"><div><b>{{x.ticker}}</b><small>Saved {{x.created_at.strftime('%d %b %Y')}}</small></div><div class="buttonrow"><button class="secondary" onclick="analyzeWatch('{{x.ticker}}')">Analyze</button><button class="danger" onclick="removeWatch('{{x.ticker}}')">Remove</button></div></div>{% else %}<p class="muted">Your watchlist is empty.</p>{% endfor %}</div></div></section></div><script src="{{url_for('static',filename='js/watchlist.js')}}"></script>{% endblock %}

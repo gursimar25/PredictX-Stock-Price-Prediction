@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Analytics — PredictX{% endblock %}{% block content %}<div class="appgrid"><aside class="sidebar">{% include "sidebar.html" %}</aside><section class="workspace"><div class="pagehead"><div><div class="eyebrow">MODEL RESEARCH</div><h1>Backtesting lab</h1><p>Evaluate a model on historical walk-forward predictions.</p></div></div><div class="control card"><div class="field"><label>STOCK</label><input
+    id="btTicker"
+    class="stock-autocomplete"
+    value="AAPL"
+    placeholder="Search stock..."
+    autocomplete="off"
+></div><div class="field"><label>HISTORY</label><select id="btPeriod"><option value="2y" selected>2 Years</option><option value="5y">5 Years</option></select></div><div class="field"><label>MODEL</label><select id="btModel"><option>Random Forest</option><option>Gradient Boosting</option><option>Linear Regression</option></select></div><button class="primary" onclick="runBacktest()">Run backtest →</button></div><div id="btMessage" class="message"></div><div class="metricgrid"><div class="metric card"><small>MAE</small><strong id="btMae">—</strong></div><div class="metric card"><small>RMSE</small><strong id="btRmse">—</strong></div><div class="metric card"><small>DIRECTIONAL ACCURACY</small><strong id="btDir">—</strong></div></div><div class="card chartcard"><h2>Actual vs predicted</h2><div class="chartwrap"><canvas id="backtestChart"></canvas></div></div></section></div><script src="{{url_for('static',filename='js/analytics.js')}}"></script>{% endblock %}

@@ -1,0 +1,611 @@
+{% extends "base.html" %}
+
+{% block title %}Predict — PredictX{% endblock %}
+
+{% block content %}
+
+<div class="appgrid">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        {% include "sidebar.html" %}
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <section class="workspace">
+
+        <!-- PAGE HEADER -->
+        <div class="pagehead">
+            <div>
+                <div class="eyebrow">MACHINE LEARNING</div>
+
+                <h1>Predict stock price</h1>
+
+                <p>
+                    Compare three supervised models, inspect indicators
+                    and generate an educational next-price estimate.
+                </p>
+            </div>
+        </div>
+
+
+        <!-- STOCK CONTROLS -->
+        <div class="control card">
+
+            <!-- STOCK SYMBOL -->
+            <div class="field">
+
+                <label for="ticker">
+                    STOCK SYMBOL
+                </label>
+
+                <div class="stock-search">
+
+                    <input
+                        id="ticker"
+                        class="stock-autocomplete"
+                        value="AAPL"
+                        maxlength="20"
+                        placeholder="Search stock..."
+                        autocomplete="off"
+                    >
+
+                    <div
+                        id="stockSuggestions"
+                        class="stock-suggestions">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- HISTORY -->
+            <div class="field">
+
+                <label for="period">
+                    HISTORY
+                </label>
+
+                <select id="period">
+
+                    <option value="1mo">
+                        1 Month
+                    </option>
+
+                    <option value="3mo">
+                        3 Months
+                    </option>
+
+                    <option value="6mo">
+                        6 Months
+                    </option>
+
+                    <option value="1y" selected>
+                        1 Year
+                    </option>
+
+                    <option value="2y">
+                        2 Years
+                    </option>
+
+                    <option value="5y">
+                        5 Years
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- MODEL -->
+            <div class="field">
+
+                <label for="model">
+                    MODEL
+                </label>
+
+                <select id="model">
+
+                    <option>
+                        Linear Regression
+                    </option>
+
+                    <option>
+                        Random Forest
+                    </option>
+
+                    <option>
+                        Gradient Boosting
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ACTION BUTTONS -->
+            <div
+                class="buttonrow"
+                style="
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    align-items: center;
+                "
+            >
+
+                <button
+                    type="button"
+                    class="primary"
+                    onclick="analyze()"
+                >
+                    Analyze stock →
+                </button>
+
+
+                <button
+                    type="button"
+                    class="secondary"
+                    onclick="askAI()"
+                >
+                    🤖 Analyze with AI
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MESSAGE -->
+        <div
+            id="message"
+            class="message">
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- PREDICTION RESULTS -->
+        <!-- ================================================= -->
+
+        <div class="resultgrid">
+
+            <!-- LATEST CLOSE -->
+            <div class="result card">
+
+                <small>
+                    LATEST CLOSE
+                </small>
+
+                <strong id="latest">
+                    —
+                </strong>
+
+                <span id="symbol">
+                    —
+                </span>
+
+            </div>
+
+
+            <!-- ML PREDICTION -->
+            <div class="result card">
+
+                <small>
+                    ML NEXT-PRICE ESTIMATE
+                </small>
+
+                <strong id="predicted">
+                    —
+                </strong>
+
+                <span id="modelLabel">
+                    Educational estimate
+                </span>
+
+            </div>
+
+
+            <!-- DIFFERENCE -->
+            <div class="result card">
+
+                <small>
+                    ESTIMATED DIFFERENCE
+                </small>
+
+                <strong id="difference">
+                    —
+                </strong>
+
+                <span>
+                    Estimate − latest
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- AI ANALYST -->
+        <!-- ================================================= -->
+
+        <div
+            class="card"
+            style="margin-top: 20px;"
+        >
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        🤖 PredictX AI Analyst
+                    </h2>
+
+                    <p>
+                        AI-powered educational analysis of the selected stock.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="aiResult"
+                style="
+                    margin-top: 15px;
+                    line-height: 1.7;
+                "
+            >
+
+                <p id="aiText">
+                    Select a stock and click
+                    "Analyze with AI" to generate an AI analysis.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- MODEL METRICS -->
+        <!-- ================================================= -->
+
+        <div class="metricgrid">
+
+            <!-- MAE -->
+            <div class="metric card">
+
+                <small>
+                    MAE
+                </small>
+
+                <strong id="mae">
+                    —
+                </strong>
+
+                <span>
+                    Mean absolute error
+                </span>
+
+            </div>
+
+
+            <!-- RMSE -->
+            <div class="metric card">
+
+                <small>
+                    RMSE
+                </small>
+
+                <strong id="rmse">
+                    —
+                </strong>
+
+                <span>
+                    Root mean squared error
+                </span>
+
+            </div>
+
+
+            <!-- R2 -->
+            <div class="metric card">
+
+                <small>
+                    R² SCORE
+                </small>
+
+                <strong id="r2">
+                    —
+                </strong>
+
+                <span>
+                    Chronological validation
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- INTERACTIVE CANDLESTICK CHART -->
+        <!-- ================================================= -->
+
+        <div class="card chartcard">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Interactive candlestick chart
+                    </h2>
+
+                    <p>
+                        OHLC price action with SMA, EMA and Bollinger Bands.
+                    </p>
+
+                </div>
+
+
+                <div class="buttonrow">
+
+                    <button
+                        type="button"
+                        class="secondary"
+                        onclick="addWatchlist()"
+                    >
+                        ☆ Watchlist
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="secondary"
+                        onclick="savePrediction()"
+                    >
+                        Save prediction
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="candleChart"
+                class="chartwrap">
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- TECHNICAL INDICATORS -->
+        <!-- ================================================= -->
+
+        <div class="card chartcard">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Technical indicators
+                    </h2>
+
+                    <p>
+                        Momentum and trend signals calculated from
+                        historical prices.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="indicatorgrid">
+
+                <div class="indicator">
+
+                    <span>
+                        RSI(14)
+                    </span>
+
+                    <b id="rsi">
+                        —
+                    </b>
+
+                </div>
+
+
+                <div class="indicator">
+
+                    <span>
+                        MACD
+                    </span>
+
+                    <b id="macd">
+                        —
+                    </b>
+
+                </div>
+
+
+                <div class="indicator">
+
+                    <span>
+                        SMA(20)
+                    </span>
+
+                    <b id="sma">
+                        —
+                    </b>
+
+                </div>
+
+
+                <div class="indicator">
+
+                    <span>
+                        EMA(20)
+                    </span>
+
+                    <b id="ema">
+                        —
+                    </b>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- MODEL COMPARISON -->
+        <!-- ================================================= -->
+
+        <div class="card chartcard">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        Model comparison
+                    </h2>
+
+                    <p>
+                        Validation metrics and next-price estimates
+                        for all models.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-scroll">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Model
+                            </th>
+
+                            <th>
+                                Next estimate
+                            </th>
+
+                            <th>
+                                MAE
+                            </th>
+
+                            <th>
+                                RMSE
+                            </th>
+
+                            <th>
+                                R²
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="modelRows">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div
+                class="chartwrap smallchart"
+            >
+
+                <canvas id="modelChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- LSTM NEURAL NETWORK -->
+        <!-- ================================================= -->
+
+        <div class="card chartcard">
+
+            <div class="sectionhead">
+
+                <div>
+
+                    <h2>
+                        LSTM neural network
+                    </h2>
+
+                    <p>
+                        Optional recurrent neural-network experiment
+                        using a 30-session sequence.
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="secondary"
+                    onclick="runLSTM()"
+                >
+                    Run LSTM
+                </button>
+
+            </div>
+
+
+            <div
+                id="lstmResult"
+                class="lstm-result"
+            >
+                Not run yet. TensorFlow is optional.
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- CSRF TOKEN -->
+        <!-- ================================================= -->
+
+        <meta
+            name="csrf-token"
+            content="{{ csrf_token() }}"
+        >
+
+    </section>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- PREDICT JAVASCRIPT -->
+<!-- ===================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/predict.js') }}">
+</script>
+
+{% endblock %}

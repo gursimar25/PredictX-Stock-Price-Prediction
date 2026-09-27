@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Portfolio — PredictX{% endblock %}{% block content %}<div class="appgrid"><aside class="sidebar">{% include "sidebar.html" %}</aside><section class="workspace"><div class="pagehead"><div><div class="eyebrow">PORTFOLIO</div><h1>Portfolio tracker</h1><p>Record holdings and view their live market value.</p></div></div><div class="control card"><div class="field"><label>SYMBOL</label><input
+    id="pTicker"
+    class="stock-autocomplete"
+    value="AAPL"
+    placeholder="Search stock..."
+    autocomplete="off"
+></div><div class="field"><label>QUANTITY</label><input id="pQty" type="number" min="0.0001" step="0.0001" placeholder="10"></div><div class="field"><label>AVERAGE PRICE</label><input id="pAvg" type="number" min="0" step="0.01" placeholder="200"></div><button class="primary" onclick="addHolding()">Add holding →</button></div><div id="pMessage" class="message"></div><div class="card tablecard"><div class="table-scroll"><table><thead><tr><th>Symbol</th><th>Quantity</th><th>Avg. Price</th><th>Action</th></tr></thead><tbody>{% for h in holdings %}<tr><td><b>{{h.ticker}}</b></td><td>{{h.quantity}}</td><td>{{"%.2f"|format(h.avg_price)}}</td><td><button class="danger" onclick="removeHolding('{{h.ticker}}')">Remove</button></td></tr>{% else %}<tr><td colspan="4" class="empty">No holdings yet.</td></tr>{% endfor %}</tbody></table></div></div></section></div><script src="{{url_for('static',filename='js/portfolio.js')}}"></script>{% endblock %}
